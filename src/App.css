@@ -1,0 +1,160 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 50px 20px;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+.logo-container {
+  width: 100%;
+  padding: 0 20px; /* Margem de segurança para não encostar nas bordas no celular */
+  box-sizing: border-box;
+}
+
+.logo-responsiva {
+  max-width: 600px; /* Tamanho máximo que você deseja */
+  width: 100%; /* Faz ela ocupar o espaço disponível até o limite do max-width */
+  height: auto; /* Mantém a proporção da fonte Bauhaus sem achatar */
+  display: block;
+  margin: 0 auto; /* Centraliza a imagem */
+}
+
+/* Container do marcador de início */
+.timeline-start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 40px; /* Espaço até o primeiro ano (1961) */
+  z-index: 2;
+}
+
+/* O texto "O INÍCIO" */
+.start-label {
+  background: #003366;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+/* A bolinha de destaque no topo da linha */
+.start-dot {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 4px solid #003366;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 51, 102, 0.3);
+}
+
+/* A Linha Vertical Central */
+.timeline-wrapper {
+  position: relative;
+  padding: 20px 0;
+}
+
+.timeline-wrapper::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  height: 100%;
+  background: #003366;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  top: 40px; /* Começa um pouco abaixo do topo para alinhar com a bolinha */
+}
+
+/* Seção de cada Ano */
+.ano-section {
+  position: relative;
+  width: 100%;
+  margin-bottom: 80px;
+}
+
+/* O Marcador (Bolinha) na linha central */
+.ano-badge {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #003366;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-weight: bold;
+  z-index: 10;
+  display: inline-block;
+  box-shadow: 0 0 0 5px #f0f2f5; /* Cria um respiro em volta da bolinha */
+}
+
+/* Grid de Contextos */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 30px;
+  position: relative;
+}
+
+/* Estilo dos Cards */
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-top: 6px solid #ccc;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.card ul {
+  padding-left: 15px;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Cores por Contexto */
+.card-inpe {
+  border-top-color: #0066ff;
+}
+.card-brasil {
+  border-top-color: #28a745;
+}
+.card-mundo {
+  border-top-color: #6f42c1;
+}
+
+/* Responsividade: No celular a linha vai para a esquerda */
+@media (max-width: 768px) {
+  .timeline-wrapper::before {
+    left: 20px;
+  }
+  .ano-badge {
+    left: 20px;
+    transform: none;
+  }
+  .grid-container {
+    grid-template-columns: 1fr;
+    margin-left: 45px;
+  }
+  .timeline-start {
+    align-items: flex-start;
+    padding-left: 11px; /* (20px da linha) - (20px largura da bolinha / 2) + (4px borda / 2) ≈ 11px */
+  }
+}

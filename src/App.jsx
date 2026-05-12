@@ -1,76 +1,128 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react"; // <- adiciona hooks
+import "./App.css";
+import logoImg from "./assets/linha-do-tempo-inpe.png";
+import timelineData from "./mock/timelineData";
+
+const LIMITE = 2; // Anos carregados por vez
 
 function App() {
-  // Mock inicial para você ver a estrutura funcionando
-  const [timeline, setTimeline] = useState([
-    {
-      ano: 1961,
-      contextos: {
-        inpe: {
-          topicos: ["Criação do GOCNAE (precursor do INPE)"],
-          imagens: [],
-        },
-        brasil: { topicos: ["Renúncia de Jânio Quadros"], imagens: [] },
-        mundo: { topicos: ["Yuri Gagarin vai ao espaço"], imagens: [] },
-      },
+  const [timeline, setTimeline] = useState([]);
+  const [pagina, setPagina] = useState(0);
+  const [temMais, setTemMais] = useState(true);
+  const [carregando, setCarregando] = useState(false);
+  const sentinelaRef = useRef(null);
+
+  const carregarPagina = useCallback(
+    async (paginaAtual) => {
+      if (carregando || !temMais) return;
+      setCarregando(true);
+
+      // Simula latência de rede (retire quando conectar à API real)
+      await new Promise((r) => setTimeout(r, 800));
+
+      const inicio = paginaAtual * LIMITE;
+      const slice = timelineData.slice(inicio, inicio + LIMITE);
+
+      setTimeline((prev) => [...prev, ...slice]);
+      setPagina(paginaAtual + 1);
+
+      if (inicio + LIMITE >= timelineData.length) setTemMais(false);
+
+      setCarregando(false);
     },
-  ]);
+    [carregando, temMais],
+  );
+
+  // Carga inicial
+  useEffect(() => {
+    carregarPagina(0);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Observa a sentinela para carregar mais
+  useEffect(() => {
+    if (!sentinelaRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) carregarPagina(pagina);
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(sentinelaRef.current);
+    return () => observer.disconnect();
+  }, [pagina, carregarPagina]);
 
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <header>
-        <h1>Linha do Tempo INPE</h1>
-        <p>História, Brasil e Mundo desde 1961</p>
+    <div className="container">
+      <header
+        className="header"
+        style={{ textAlign: "center", marginBottom: "40px" }}
+      >
+        <img
+          src={logoImg}
+          alt="Linha do Tempo INPE"
+          className="logo-responsiva"
+        />
+        <p>A trajetória espacial brasileira</p>
       </header>
 
-      <main>
-        {timeline.map((item) => (
-          <div
-            key={item.ano}
-            style={{ borderBottom: "2px solid #eee", marginBottom: "30px" }}
-          >
-            <h2 style={{ color: "#005599" }}>{item.ano}</h2>
+      {/* Wrapper que contém a linha vertical */}
+      <div className="timeline-wrapper">
+        {/* Marcador - INÍCIO */}
+        <div className="timeline-start">
+          <div className="start-label">O INÍCIO</div>
+          <div className="start-dot"></div>
+        </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "20px",
-              }}
-            >
-              {/* Coluna INPE */}
-              <section>
-                <h3 style={{ borderBottom: "1px solid #ddd" }}>INPE</h3>
+        {timeline.map((item) => (
+          <section key={item.ano} className="ano-section">
+            <div className="ano-badge">{item.ano}</div>
+
+            <div className="grid-container">
+              <article className="card card-inpe">
+                <h3>INPE</h3>
                 <ul>
                   {item.contextos.inpe.topicos.map((t, i) => (
                     <li key={i}>{t}</li>
                   ))}
                 </ul>
-              </section>
+              </article>
 
-              {/* Coluna Brasil */}
-              <section>
-                <h3 style={{ borderBottom: "1px solid #ddd" }}>Brasil</h3>
+              <article className="card card-brasil">
+                <h3>Brasil</h3>
                 <ul>
                   {item.contextos.brasil.topicos.map((t, i) => (
                     <li key={i}>{t}</li>
                   ))}
                 </ul>
-              </section>
+              </article>
 
-              {/* Coluna Mundo */}
-              <section>
-                <h3 style={{ borderBottom: "1px solid #ddd" }}>Mundo</h3>
+              <article className="card card-mundo">
+                <h3>Mundo</h3>
                 <ul>
                   {item.contextos.mundo.topicos.map((t, i) => (
                     <li key={i}>{t}</li>
                   ))}
                 </ul>
-              </section>
+              </article>
             </div>
-          </div>
+          </section>
         ))}
-      </main>
+
+        {/* Sentinela invisível — dispara o próximo carregamento */}
+        <div ref={sentinelaRef} style={{ height: 1 }} />
+
+        {carregando && (
+          <p style={{ textAlign: "center", color: "#003366", padding: "20px" }}>
+            Carregando...
+          </p>
+        )}
+
+        {!temMais && (
+          <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
+            Fim da linha do tempo.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

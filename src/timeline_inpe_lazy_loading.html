@@ -1,0 +1,275 @@
+
+<h2 class="sr-only">Simulação de timeline do INPE com lazy loading — anos carregados conforme a rolagem</h2>
+
+<style>
+  #tl-root {
+    font-family: "Segoe UI", sans-serif;
+    background: var(--color-background-tertiary);
+    padding: 24px 16px;
+    min-height: 400px;
+  }
+  .tl-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .tl-line {
+    position: absolute;
+    left: 50%;
+    top: 60px;
+    bottom: 0;
+    width: 4px;
+    background: #003366;
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+  .tl-start {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 2;
+  }
+  .tl-start-label {
+    background: #003366;
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .tl-start-dot {
+    width: 18px;
+    height: 18px;
+    background: var(--color-background-primary);
+    border: 4px solid #003366;
+    border-radius: 50%;
+  }
+  .ano-section {
+    position: relative;
+    margin-bottom: 48px;
+    z-index: 1;
+  }
+  .ano-badge {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-block;
+    background: #003366;
+    color: #fff;
+    padding: 8px 22px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 0 0 5px var(--color-background-tertiary);
+    z-index: 10;
+  }
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .card {
+    background: var(--color-background-primary);
+    padding: 12px;
+    border-radius: 10px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-top-width: 5px;
+  }
+  .card h3 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-primary);
+  }
+  .card ul {
+    padding-left: 14px;
+    font-size: 12px;
+    margin: 0;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .card-inpe { border-top-color: #0066ff; }
+  .card-brasil { border-top-color: #28a745; }
+  .card-mundo { border-top-color: #6f42c1; }
+  .skeleton {
+    background: var(--color-background-secondary);
+    border-radius: 10px;
+    border-top: 5px solid var(--color-border-tertiary);
+    padding: 12px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .skel-line {
+    height: 10px;
+    background: var(--color-background-tertiary);
+    border-radius: 4px;
+    margin-bottom: 7px;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .status-bar {
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    padding: 16px 0 8px;
+  }
+  .tl-badge-loading {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-block;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-secondary);
+    color: var(--color-text-secondary);
+    padding: 8px 22px;
+    border-radius: 30px;
+    font-size: 13px;
+    box-shadow: 0 0 0 5px var(--color-background-tertiary);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @media (max-width: 500px) {
+    .tl-line { left: 20px; }
+    .ano-badge { left: 20px; transform: none; }
+    .tl-start { align-items: flex-start; padding-left: 11px; }
+    .grid-container { grid-template-columns: 1fr; margin-left: 40px; }
+  }
+</style>
+
+<div id="tl-root">
+  <div class="tl-wrapper">
+    <div class="tl-line" id="tl-line"></div>
+    <div class="tl-start">
+      <div class="tl-start-label">O INÍCIO</div>
+      <div class="tl-start-dot"></div>
+    </div>
+    <div id="tl-content"></div>
+    <div id="tl-sentinel" style="height:1px;"></div>
+    <div id="tl-status" class="status-bar"></div>
+  </div>
+</div>
+
+<script>
+const MOCK_DATA = [
+  { ano: 1961, inpe: ["Criação do GOCNAE em São José dos Campos.", "Início das pesquisas em radioastronomia."], brasil: ["Jânio Quadros renuncia à presidência.", "Posse de João Goulart sob parlamentarismo."], mundo: ["Yuri Gagarin torna-se o primeiro homem no espaço.", "Construção do Muro de Berlim.", "Kennedy assume a presidência dos EUA."] },
+  { ano: 1966, inpe: ["Criação do CNAE, substituindo o GOCNAE.", "Primeiros estudos sobre satélites meteorológicos."], brasil: ["Castelo Branco promulga nova Constituição.", "Criação do Banco Central do Brasil."], mundo: ["Primeira missão da Lua pela sonda soviética Luna 9.", "EUA intensificam presença no Vietnã."] },
+  { ano: 1971, inpe: ["O CNAE torna-se oficialmente INPE.", "Instalação do Centro de Previsão de Tempo e Estudos Climáticos."], brasil: ["Auge do Milagre Econômico brasileiro.", "Aprovação do Plano Nacional de Desenvolvimento."], mundo: ["Lançamento da estação espacial Salyut 1.", "Intel lança o primeiro microprocessador comercial."] },
+  { ano: 1975, inpe: ["Acordo Brasil-EUA para uso de dados do satélite Landsat.", "Criação do programa de sensoriamento remoto."], brasil: ["Início do Programa Nacional do Álcool (Proálcool).", "Abertura política 'lenta e gradual' de Geisel."], mundo: ["Fim da Guerra do Vietnã.", "Missão Apollo-Soyuz: cooperação EUA-URSS no espaço."] },
+  { ano: 1980, inpe: ["Lançamento do primeiro satélite brasileiro — SACI-1 (experimental).", "Expansão do programa de previsão climática."], brasil: ["Greves do ABC Paulista lideram o movimento sindical.", "Fundação do Partido dos Trabalhadores (PT)."], mundo: ["Lançamento do Space Shuttle Columbia.", "Início da era dos computadores pessoais com IBM PC."] },
+  { ano: 1985, inpe: ["INPE passa a operar dados do satélite GOES.", "Início do monitoramento sistemático da Amazônia."], brasil: ["Fim da ditadura militar; início da Nova República.", "Tancredo Neves eleito; José Sarney assume."], mundo: ["Primeira conexão à internet no Brasil via INPE.", "Gorbachev inicia a Glasnost e a Perestroika na URSS."] },
+  { ano: 1993, inpe: ["Lançamento do SCD-1, primeiro satélite 100% brasileiro.", "Início da coleta de dados ambientais por satélite nacional."], brasil: ["Aprovação do Plano Real; fim da hiperinflação.", "Impeachment de Fernando Collor de Mello."], mundo: ["Criação da World Wide Web pelo CERN.", "Tratado de Maastricht funda a União Europeia."] },
+  { ano: 1998, inpe: ["Lançamento do SCD-2.", "INPE supera 30 anos de atividades espaciais."], brasil: ["Reeleição de Fernando Henrique Cardoso.", "Crise cambial; real é desvalorizado."], mundo: ["Lançamento do primeiro módulo da Estação Espacial Internacional.", "Google é fundado por Larry Page e Sergey Brin."] },
+  { ano: 2004, inpe: ["Lançamento do satélite CBERS-2 em parceria com a China.", "Programa de Monitoramento do Desmatamento da Amazônia (PRODES) expande."], brasil: ["Lula anuncia o Programa Fome Zero.", "Brasil entra no grupo dos países com foguete espacial (VLS)."], mundo: ["Missão Mars Rover Spirit and Opportunity.", "Facebook é fundado por Mark Zuckerberg."] },
+  { ano: 2013, inpe: ["Lançamento do satélite CBERS-3 (falhou em órbita).", "INPE publica dados que revelam aumento do desmatamento."], brasil: ["Manifestações de junho de 2013 nas ruas do Brasil.", "Brasil sedia a Copa das Confederações."], mundo: ["Edward Snowden revela programa de espionagem da NSA.", "Curiosity rover encontra evidências de água em Marte."] },
+];
+
+const LIMITE = 3;
+let pagina = 0;
+let carregando = false;
+let temMais = true;
+
+const content = document.getElementById("tl-content");
+const status = document.getElementById("tl-status");
+const sentinel = document.getElementById("tl-sentinel");
+
+function renderSkeleton() {
+  const wrap = document.createElement("div");
+  wrap.className = "ano-section";
+  wrap.innerHTML = `
+    <div class="tl-badge-loading">carregando...</div>
+    <div class="grid-container" style="margin-top:20px">
+      ${[1,2,3].map(() => `
+        <div class="skeleton">
+          <div class="skel-line" style="width:40%"></div>
+          <div class="skel-line" style="width:90%"></div>
+          <div class="skel-line" style="width:75%"></div>
+          <div class="skel-line" style="width:60%"></div>
+        </div>
+      `).join("")}
+    </div>`;
+  return wrap;
+}
+
+function renderAno(item) {
+  const section = document.createElement("section");
+  section.className = "ano-section";
+  section.style.opacity = "0";
+  section.style.transform = "translateY(16px)";
+  section.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+  section.innerHTML = `
+    <div class="ano-badge">${item.ano}</div>
+    <div class="grid-container">
+      <article class="card card-inpe">
+        <h3>INPE</h3>
+        <ul>${item.inpe.map(t => `<li>${t}</li>`).join("")}</ul>
+      </article>
+      <article class="card card-brasil">
+        <h3>Brasil</h3>
+        <ul>${item.brasil.map(t => `<li>${t}</li>`).join("")}</ul>
+      </article>
+      <article class="card card-mundo">
+        <h3>Mundo</h3>
+        <ul>${item.mundo.map(t => `<li>${t}</li>`).join("")}</ul>
+      </article>
+    </div>`;
+  return section;
+}
+
+async function carregarPagina() {
+  if (carregando || !temMais) return;
+  carregando = true;
+
+  const skel = renderSkeleton();
+  content.appendChild(skel);
+
+  await new Promise(r => setTimeout(r, 900));
+
+  const inicio = pagina * LIMITE;
+  const slice = MOCK_DATA.slice(inicio, inicio + LIMITE);
+  content.removeChild(skel);
+
+  if (slice.length === 0) {
+    temMais = false;
+    status.textContent = "Fim da linha do tempo.";
+    carregando = false;
+    return;
+  }
+
+  slice.forEach(item => {
+    const el = renderAno(item);
+    content.appendChild(el);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.opacity = "1";
+        el.style.transform = "translateY(0)";
+      });
+    });
+  });
+
+  pagina++;
+  if (pagina * LIMITE >= MOCK_DATA.length) {
+    temMais = false;
+    status.textContent = "Fim da linha do tempo.";
+  } else {
+    status.textContent = `${Math.min(pagina * LIMITE, MOCK_DATA.length)} de ${MOCK_DATA.length} anos carregados`;
+  }
+
+  carregando = false;
+}
+
+const observer = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && temMais && !carregando) {
+    carregarPagina();
+  }
+}, { rootMargin: "120px" });
+
+observer.observe(sentinel);
+carregarPagina();
+</script>
