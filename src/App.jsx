@@ -3,7 +3,7 @@ import "./App.css";
 import logoImg from "./assets/linha-do-tempo-inpe.png";
 import timelineData from "./mock/timelineData";
 
-const LIMITE = 2; // Anos carregados por vez
+const LIMITE = 5; // Anos carregados por vez
 
 function App() {
   const [timeline, setTimeline] = useState([]);
@@ -11,45 +11,53 @@ function App() {
   const [temMais, setTemMais] = useState(true);
   const [carregando, setCarregando] = useState(false);
   const sentinelaRef = useRef(null);
+  const paginaRef = useRef(0); // controla a página sem re-renderizar
+  const carregandoRef = useRef(false); // evita disparos simultâneos
 
-  const carregarPagina = useCallback(
-    async (paginaAtual) => {
-      if (carregando || !temMais) return;
-      setCarregando(true);
+  const carregarPagina = useCallback(async () => {
+    if (
+      carregandoRef.current ||
+      paginaRef.current * LIMITE >= timelineData.length
+    )
+      return;
 
-      // Simula latência de rede (retire quando conectar à API real)
-      await new Promise((r) => setTimeout(r, 800));
+    carregandoRef.current = true;
+    setCarregando(true);
 
-      const inicio = paginaAtual * LIMITE;
-      const slice = timelineData.slice(inicio, inicio + LIMITE);
+    await new Promise((r) => setTimeout(r, 800));
 
-      setTimeline((prev) => [...prev, ...slice]);
-      setPagina(paginaAtual + 1);
+    const inicio = paginaRef.current * LIMITE;
+    const slice = timelineData.slice(inicio, inicio + LIMITE);
 
-      if (inicio + LIMITE >= timelineData.length) setTemMais(false);
+    setTimeline((prev) => [...prev, ...slice]);
+    paginaRef.current += 1;
 
-      setCarregando(false);
-    },
-    [carregando, temMais],
-  );
+    if (inicio + LIMITE >= timelineData.length) setTemMais(false);
+
+    carregandoRef.current = false;
+    setCarregando(false);
+  }, []);
 
   // Carga inicial
   useEffect(() => {
-    carregarPagina(0);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    carregarPagina();
+  }, [carregarPagina]);
 
-  // Observa a sentinela para carregar mais
+  // Observer recriado após cada renderização do timeline
   useEffect(() => {
-    if (!sentinelaRef.current) return;
+    const el = sentinelaRef.current;
+    if (!el || !temMais) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) carregarPagina(pagina);
+        if (entry.isIntersecting) carregarPagina();
       },
       { rootMargin: "200px" },
     );
-    observer.observe(sentinelaRef.current);
+
+    observer.observe(el);
     return () => observer.disconnect();
-  }, [pagina, carregarPagina]);
+  }, [timeline, temMais, carregarPagina]); // <- timeline aqui é a chave
 
   return (
     <div className="container">
@@ -62,7 +70,12 @@ function App() {
           alt="Linha do Tempo INPE"
           className="logo-responsiva"
         />
-        <p>A trajetória espacial brasileira</p>
+        <p>
+          A história do Instituto Nacional de Pesquisas Espaciais e algumas
+          realizações que marcaram a sua trajetória, inseridas no contexto dos
+          principais acontecimentos em ciência e tecnologia no Brasil e no
+          Mundo.
+        </p>
       </header>
 
       {/* Wrapper que contém a linha vertical */}
@@ -85,6 +98,18 @@ function App() {
                     <li key={i}>{t}</li>
                   ))}
                 </ul>
+                {item.contextos.inpe.imagens.map((img, i) => (
+                  <figure key={i} className="card-figura">
+                    <img
+                      src={img.url}
+                      alt={img.legenda}
+                      className="card-imagem"
+                    />
+                    <figcaption className="card-legenda">
+                      {img.legenda}
+                    </figcaption>
+                  </figure>
+                ))}
               </article>
 
               <article className="card card-brasil">
@@ -94,6 +119,18 @@ function App() {
                     <li key={i}>{t}</li>
                   ))}
                 </ul>
+                {item.contextos.brasil.imagens.map((img, i) => (
+                  <figure key={i} className="card-figura">
+                    <img
+                      src={img.url}
+                      alt={img.legenda}
+                      className="card-imagem"
+                    />
+                    <figcaption className="card-legenda">
+                      {img.legenda}
+                    </figcaption>
+                  </figure>
+                ))}
               </article>
 
               <article className="card card-mundo">
@@ -103,6 +140,18 @@ function App() {
                     <li key={i}>{t}</li>
                   ))}
                 </ul>
+                {item.contextos.mundo.imagens.map((img, i) => (
+                  <figure key={i} className="card-figura">
+                    <img
+                      src={img.url}
+                      alt={img.legenda}
+                      className="card-imagem"
+                    />
+                    <figcaption className="card-legenda">
+                      {img.legenda}
+                    </figcaption>
+                  </figure>
+                ))}
               </article>
             </div>
           </section>

@@ -18,7 +18,12 @@ const timelineData = [
       },
       mundo: {
         topicos: ["Yuri Gagarin no espaço.", "Construção do Muro de Berlim."],
-        imagens: [],
+        imagens: [
+          {
+            url: "../../public/1961_presidente_janio.jpg",
+            legenda: "Yuri Gagarin, o primeiro humano no espaço (1961).",
+          },
+        ],
       },
     },
   },
