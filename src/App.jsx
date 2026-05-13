@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"; // <- adiciona hooks
+import "./index.css"; // <- importa a fonte
 import "./App.css";
 import logoImg from "./assets/linha-do-tempo-inpe.png";
 
