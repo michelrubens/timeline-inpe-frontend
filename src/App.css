@@ -170,6 +170,49 @@
   line-height: 1.4;
 }
 
+.card-imagem-fonte {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: #888;
+  text-decoration: none;
+  text-align: center;
+}
+
+.card-imagem-fonte:hover {
+  text-decoration: underline;
+  color: #003366;
+}
+
+.timeline-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-top: 40px;
+  z-index: 2;
+}
+
+.end-dot {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 4px solid #003366;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 51, 102, 0.3);
+  margin-bottom: 10px;
+}
+
+.end-label {
+  background: #003366;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
 /* Responsividade: No celular a linha vai para a esquerda */
 @media (max-width: 768px) {
   .timeline-wrapper::before {
@@ -186,5 +229,9 @@
   .timeline-start {
     align-items: flex-start;
     padding-left: 11px; /* (20px da linha) - (20px largura da bolinha / 2) + (4px borda / 2) ≈ 11px */
+  }
+  .timeline-end {
+    align-items: flex-start;
+    padding-left: 11px;
   }
 }

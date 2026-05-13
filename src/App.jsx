@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"; // <- adiciona hooks
 import "./App.css";
 import logoImg from "./assets/linha-do-tempo-inpe.png";
-import timelineData from "./mock/timelineData";
 
 const LIMITE = 5; // Anos carregados por vez
 
 function App() {
   const [timeline, setTimeline] = useState([]);
-  const [pagina, setPagina] = useState(0);
   const [temMais, setTemMais] = useState(true);
   const [carregando, setCarregando] = useState(false);
   const sentinelaRef = useRef(null);
@@ -15,28 +13,27 @@ function App() {
   const carregandoRef = useRef(false); // evita disparos simultâneos
 
   const carregarPagina = useCallback(async () => {
-    if (
-      carregandoRef.current ||
-      paginaRef.current * LIMITE >= timelineData.length
-    )
-      return;
+    if (carregandoRef.current || !temMais) return;
 
     carregandoRef.current = true;
     setCarregando(true);
 
-    await new Promise((r) => setTimeout(r, 800));
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/timeline?pagina=${paginaRef.current + 1}&limite=${LIMITE}`,
+      );
+      const json = await res.json();
 
-    const inicio = paginaRef.current * LIMITE;
-    const slice = timelineData.slice(inicio, inicio + LIMITE);
-
-    setTimeline((prev) => [...prev, ...slice]);
-    paginaRef.current += 1;
-
-    if (inicio + LIMITE >= timelineData.length) setTemMais(false);
-
-    carregandoRef.current = false;
-    setCarregando(false);
-  }, []);
+      setTimeline((prev) => [...prev, ...json.dados]);
+      paginaRef.current += 1;
+      setTemMais(json.temMais);
+    } catch (err) {
+      console.error("Erro ao carregar timeline:", err);
+    } finally {
+      carregandoRef.current = false;
+      setCarregando(false);
+    }
+  }, [temMais]);
 
   // Carga inicial
   useEffect(() => {
@@ -101,13 +98,23 @@ function App() {
                 {item.contextos.inpe.imagens.map((img, i) => (
                   <figure key={i} className="card-figura">
                     <img
-                      src={img.url}
+                      src={`${import.meta.env.VITE_API_URL}${img.url}`}
                       alt={img.legenda}
                       className="card-imagem"
                     />
                     <figcaption className="card-legenda">
                       {img.legenda}
                     </figcaption>
+                    {img.fonte?.link && (
+                      <a
+                        href={img.fonte.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="card-imagem-fonte"
+                      >
+                        Fonte: {img.fonte.texto || img.fonte.link}
+                      </a>
+                    )}
                   </figure>
                 ))}
               </article>
@@ -122,13 +129,23 @@ function App() {
                 {item.contextos.brasil.imagens.map((img, i) => (
                   <figure key={i} className="card-figura">
                     <img
-                      src={img.url}
+                      src={`${import.meta.env.VITE_API_URL}${img.url}`}
                       alt={img.legenda}
                       className="card-imagem"
                     />
                     <figcaption className="card-legenda">
                       {img.legenda}
                     </figcaption>
+                    {img.fonte?.link && (
+                      <a
+                        href={img.fonte.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="card-imagem-fonte"
+                      >
+                        Fonte: {img.fonte.texto || img.fonte.link}
+                      </a>
+                    )}
                   </figure>
                 ))}
               </article>
@@ -143,13 +160,23 @@ function App() {
                 {item.contextos.mundo.imagens.map((img, i) => (
                   <figure key={i} className="card-figura">
                     <img
-                      src={img.url}
+                      src={`${import.meta.env.VITE_API_URL}${img.url}`}
                       alt={img.legenda}
                       className="card-imagem"
                     />
                     <figcaption className="card-legenda">
                       {img.legenda}
                     </figcaption>
+                    {img.fonte?.link && (
+                      <a
+                        href={img.fonte.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="card-imagem-fonte"
+                      >
+                        Fonte: {img.fonte.texto || img.fonte.link}
+                      </a>
+                    )}
                   </figure>
                 ))}
               </article>
@@ -167,9 +194,10 @@ function App() {
         )}
 
         {!temMais && (
-          <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>
-            Fim da linha do tempo.
-          </p>
+          <div className="timeline-end">
+            <div className="end-dot"></div>
+            <div className="end-label">SEGUE...</div>
+          </div>
         )}
       </div>
     </div>
