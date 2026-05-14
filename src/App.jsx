@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"; // <- adiciona hooks
-import "./index.css"; // <- importa a fonte
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import "./index.css";
 import "./App.css";
 import logoImg from "./assets/linha-do-tempo-inpe.png";
 
-const LIMITE = 5; // Anos carregados por vez
+const LIMITE = 5;
 
 function App() {
   const [timeline, setTimeline] = useState([]);
   const [temMais, setTemMais] = useState(true);
   const [carregando, setCarregando] = useState(false);
   const sentinelaRef = useRef(null);
-  const paginaRef = useRef(0); // controla a página sem re-renderizar
-  const carregandoRef = useRef(false); // evita disparos simultâneos
+  const paginaRef = useRef(0);
+  const carregandoRef = useRef(false);
 
   const carregarPagina = useCallback(async () => {
     if (carregandoRef.current || !temMais) return;
@@ -21,7 +21,7 @@ function App() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/timeline?pagina=${paginaRef.current + 1}&limite=${LIMITE}`,
+        `http://localhost:5000/api/timeline?pagina=${paginaRef.current + 1}&limite=${LIMITE}`
       );
       const json = await res.json();
 
@@ -41,7 +41,7 @@ function App() {
     carregarPagina();
   }, [carregarPagina]);
 
-  // Observer recriado após cada renderização do timeline
+  // Observer — funciona tanto no scroll horizontal quanto vertical
   useEffect(() => {
     const el = sentinelaRef.current;
     if (!el || !temMais) return;
@@ -50,19 +50,22 @@ function App() {
       ([entry]) => {
         if (entry.isIntersecting) carregarPagina();
       },
-      { rootMargin: "200px" },
+      {
+        // root: null observa o viewport, mas no scroll horizontal
+        // o elemento sentinela precisa estar dentro do scroll container.
+        // Passamos o scroll container como root para funcionar no horizontal.
+        root: el.closest(".timeline-scroll") || null,
+        rootMargin: "0px 300px 0px 0px", // dispara 300px antes do fim horizontal
+      }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [timeline, temMais, carregarPagina]); // <- timeline aqui é a chave
+  }, [timeline, temMais, carregarPagina]);
 
   return (
     <div className="container">
-      <header
-        className="header"
-        style={{ textAlign: "center", marginBottom: "40px" }}
-      >
+      <header className="header">
         <img
           src={logoImg}
           alt="Linha do Tempo INPE"
@@ -76,136 +79,152 @@ function App() {
         </p>
       </header>
 
-      {/* Wrapper que contém a linha vertical */}
       <div className="timeline-wrapper">
-        {/* Marcador - INÍCIO */}
-        <div className="timeline-start">
-          <div className="start-label">O INÍCIO</div>
-          <div className="start-dot"></div>
+        {/* Área de scroll horizontal (desktop) / vertical (mobile) */}
+        <div className="timeline-scroll">
+
+          {/* Marcador de início */}
+          <div className="timeline-start">
+            <div className="start-label">O INÍCIO</div>
+            <div className="start-dot"></div>
+          </div>
+
+          {/* Conector entre marcador e primeiro ano */}
+          <div className="timeline-connector" aria-hidden="true" />
+
+          {timeline.map((item, index) => (
+            <React.Fragment key={item.ano}>
+              <section className="ano-section">
+                {/* Badge do ano com linhas laterais */}
+                <div className="ano-header">
+                  <div className="ano-linha" aria-hidden="true" />
+                  <div className="ano-badge">{item.ano}</div>
+                  <div className="ano-linha" aria-hidden="true" />
+                </div>
+
+                <div className="grid-container">
+                  {/* Card Mundo */}
+                  <article className="card card-mundo">
+                    <h3>Mundo</h3>
+                    <ul>
+                      {(item.contextos.mundo?.topicos || []).map((t, i) => (
+                        <li key={i}>
+                          {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
+                        </li>
+                      ))}
+                    </ul>
+                    {(item.contextos.mundo?.imagens || []).map((img, i) => (
+                      <figure key={i} className="card-figura">
+                        <img
+                          src={`${import.meta.env.VITE_API_URL}${img.url}`}
+                          alt={img.legenda}
+                          className="card-imagem"
+                        />
+                        <figcaption className="card-legenda">{img.legenda}</figcaption>
+                        {img.fonte?.link && (
+                          <a
+                            href={img.fonte.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="card-imagem-fonte"
+                          >
+                            Fonte: {img.fonte.texto || img.fonte.link}
+                          </a>
+                        )}
+                      </figure>
+                    ))}
+                  </article>
+
+                  {/* Card Brasil */}
+                  <article className="card card-brasil">
+                    <h3>Brasil</h3>
+                    <ul>
+                      {(item.contextos.brasil?.topicos || []).map((t, i) => (
+                        <li key={i}>
+                          {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
+                        </li>
+                      ))}
+                    </ul>
+                    {(item.contextos.brasil?.imagens || []).map((img, i) => (
+                      <figure key={i} className="card-figura">
+                        <img
+                          src={`${import.meta.env.VITE_API_URL}${img.url}`}
+                          alt={img.legenda}
+                          className="card-imagem"
+                        />
+                        <figcaption className="card-legenda">{img.legenda}</figcaption>
+                        {img.fonte?.link && (
+                          <a
+                            href={img.fonte.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="card-imagem-fonte"
+                          >
+                            Fonte: {img.fonte.texto || img.fonte.link}
+                          </a>
+                        )}
+                      </figure>
+                    ))}
+                  </article>
+
+                  {/* Card INPE */}
+                  <article className="card card-inpe">
+                    <h3>INPE</h3>
+                    <ul>
+                      {(item.contextos.inpe?.topicos || []).map((t, i) => (
+                        <li key={i}>
+                          {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
+                        </li>
+                      ))}
+                    </ul>
+                    {(item.contextos.inpe?.imagens || []).map((img, i) => (
+                      <figure key={i} className="card-figura">
+                        <img
+                          src={`${import.meta.env.VITE_API_URL}${img.url}`}
+                          alt={img.legenda}
+                          className="card-imagem"
+                        />
+                        <figcaption className="card-legenda">{img.legenda}</figcaption>
+                        {img.fonte?.link && (
+                          <a
+                            href={img.fonte.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="card-imagem-fonte"
+                          >
+                            Fonte: {img.fonte.texto || img.fonte.link}
+                          </a>
+                        )}
+                      </figure>
+                    ))}
+                  </article>
+                </div>
+              </section>
+            </React.Fragment>
+          ))}
+
+          {/* Loading inline (aparece na linha do scroll) */}
+          {carregando && (
+            <p className="loading-msg">Carregando...</p>
+          )}
+
+          {/* Sentinela — dispara o próximo carregamento */}
+          <div ref={sentinelaRef} className="sentinela" />
+
+          {/* Marcador de fim */}
+          {!temMais && (
+            <>
+              <div className="timeline-connector" aria-hidden="true" />
+              <div className="timeline-end">
+                <div className="end-dot"></div>
+                <div className="end-label">SEGUE...</div>
+              </div>
+            </>
+          )}
         </div>
 
-        {timeline.map((item) => (
-          <section key={item.ano} className="ano-section">
-            <div className="ano-badge">{item.ano}</div>
-
-            <div className="grid-container">
-              <article className="card card-mundo">
-                <h3>Mundo</h3>
-                <ul>
-                  {(item.contextos.mundo?.topicos || []).map((t, i) => (
-                    <li key={i}>
-                      {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
-                    </li>
-                  ))}
-                </ul>
-                {(item.contextos.mundo?.imagens || []).map((img, i) => (
-                  <figure key={i} className="card-figura">
-                    <img
-                      src={`${import.meta.env.VITE_API_URL}${img.url}`}
-                      alt={img.legenda}
-                      className="card-imagem"
-                    />
-                    <figcaption className="card-legenda">
-                      {img.legenda}
-                    </figcaption>
-                    {img.fonte?.link && (
-                      <a
-                        href={img.fonte.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="card-imagem-fonte"
-                      >
-                        Fonte: {img.fonte.texto || img.fonte.link}
-                      </a>
-                    )}
-                  </figure>
-                ))}
-              </article>
-
-              <article className="card card-brasil">
-                <h3>Brasil</h3>
-                <ul>
-                  {(item.contextos.brasil?.topicos || []).map((t, i) => (
-                    <li key={i}>
-                      {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
-                    </li>
-                  ))}
-                </ul>
-                {(item.contextos.brasil?.imagens || []).map((img, i) => (
-                  <figure key={i} className="card-figura">
-                    <img
-                      src={`${import.meta.env.VITE_API_URL}${img.url}`}
-                      alt={img.legenda}
-                      className="card-imagem"
-                    />
-                    <figcaption className="card-legenda">
-                      {img.legenda}
-                    </figcaption>
-                    {img.fonte?.link && (
-                      <a
-                        href={img.fonte.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="card-imagem-fonte"
-                      >
-                        Fonte: {img.fonte.texto || img.fonte.link}
-                      </a>
-                    )}
-                  </figure>
-                ))}
-              </article>
-
-              <article className="card card-inpe">
-                <h3>INPE</h3>
-                <ul>
-                  {(item.contextos.inpe?.topicos || []).map((t, i) => (
-                    <li key={i}>
-                      {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
-                    </li>
-                  ))}
-                </ul>
-                {(item.contextos.inpe?.imagens || []).map((img, i) => (
-                  <figure key={i} className="card-figura">
-                    <img
-                      src={`${import.meta.env.VITE_API_URL}${img.url}`}
-                      alt={img.legenda}
-                      className="card-imagem"
-                    />
-                    <figcaption className="card-legenda">
-                      {img.legenda}
-                    </figcaption>
-                    {img.fonte?.link && (
-                      <a
-                        href={img.fonte.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="card-imagem-fonte"
-                      >
-                        Fonte: {img.fonte.texto || img.fonte.link}
-                      </a>
-                    )}
-                  </figure>
-                ))}
-              </article>
-            </div>
-          </section>
-        ))}
-
-        {/* Sentinela invisível — dispara o próximo carregamento */}
-        <div ref={sentinelaRef} style={{ height: 1 }} />
-
-        {carregando && (
-          <p style={{ textAlign: "center", color: "#003366", padding: "20px" }}>
-            Carregando...
-          </p>
-        )}
-
-        {!temMais && (
-          <div className="timeline-end">
-            <div className="end-dot"></div>
-            <div className="end-label">SEGUE...</div>
-          </div>
-        )}
+        {/* Dica de navegação horizontal (só desktop) */}
+        <p className="scroll-hint">← arraste ou use o scroll para navegar pelos anos →</p>
       </div>
     </div>
   );

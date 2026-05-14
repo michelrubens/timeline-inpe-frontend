@@ -1,198 +1,309 @@
+/* ─── Reset / Base ─────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ─── Container principal ───────────────────────────────────────────── */
 .container {
   max-width: 100%;
   margin: 0 auto;
-  padding: 50px 20px;
+  padding: 50px 0 60px;
   font-family: "rawline", "Segoe UI", sans-serif;
-  background-color: #f0f2f5;
   min-height: 100vh;
+
+  /* Fundo que evidencia o efeito vidro */
+  background-color: #001f4d;
+  background-image:
+    radial-gradient(
+      ellipse at 15% 30%,
+      rgba(0, 119, 186, 0.45) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 85% 20%,
+      rgba(0, 51, 102, 0.6) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 50% 80%,
+      rgba(26, 110, 46, 0.3) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 75%,
+      rgba(0, 85, 165, 0.35) 0%,
+      transparent 50%
+    );
+
+  /* Padrão pontilhado sutil por cima */
+  background-size:
+    cover,
+    cover,
+    cover,
+    cover,
+    48px 48px;
+}
+
+/* Camada de textura pontilhada */
+.container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────── */
+.header {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 48px;
+  padding: 0 20px;
 }
 
 .logo-container {
   width: 100%;
-  padding: 0 20px; /* Margem de segurança para não encostar nas bordas no celular */
-  box-sizing: border-box;
+  padding: 0 20px;
 }
 
 .logo-responsiva {
-  max-width: 600px; /* Tamanho máximo que você deseja */
-  width: 100%; /* Faz ela ocupar o espaço disponível até o limite do max-width */
-  height: auto; /* Mantém a proporção da fonte Bauhaus sem achatar */
+  max-width: 600px;
+  width: 100%;
+  height: auto;
   display: block;
-  margin: 0 auto; /* Centraliza a imagem */
+  margin: 0 auto;
+  filter: brightness(0) invert(1); /* Adapta logo escura para o fundo azul */
 }
 
 .header p {
-  max-width: 1000px; /* mesmo valor do max-width da .logo-responsiva */
-  margin: 10px auto 0;
-  font-size: 1.1rem;
-  color: #555;
-  line-height: 1.6;
+  max-width: 700px;
+  margin: 14px auto 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
 }
 
-/* Container do marcador de início */
+/* ─── Wrapper da timeline (horizontal) ─────────────────────────────── */
+.timeline-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Área de scroll horizontal ─────────────────────────────────────── */
+.timeline-scroll {
+  display: flex;
+  align-items: flex-start;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 0 48px 24px;
+  gap: 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+
+.timeline-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.timeline-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.timeline-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+}
+
+/* ─── Marcadores de início / fim ────────────────────────────────────── */
+.timeline-start,
+.timeline-end {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  /* Alinha verticalmente com o centro do badge de ano */
+  margin-top: 4px;
+}
+
 .timeline-start {
+  padding-right: 0;
+}
+
+.timeline-end {
+  padding-left: 0;
+}
+
+.start-label,
+.end-label {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.start-dot,
+.end-dot {
+  width: 16px;
+  height: 16px;
+  background: #f39200;
+  border: 3px solid #f39200;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(243, 146, 0, 0.5);
+  flex-shrink: 0;
+}
+
+/* Conectores de linha entre marcador e primeiro/último ano */
+.timeline-connector {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  /* Alinha com o centro da linha horizontal */
+  margin-top: 16px;
+  align-self: flex-start;
+}
+
+/* ─── Seção de cada Ano ──────────────────────────────────────────────── */
+.ano-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  margin-bottom: 40px; /* Espaço até o primeiro ano (1961) */
-  z-index: 2;
+  flex-shrink: 0;
+  width: 360px;
+  scroll-snap-align: start;
 }
 
-/* O texto "O INÍCIO" */
-.start-label {
-  background: #003366;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-
-/* A bolinha de destaque no topo da linha */
-.start-dot {
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border: 4px solid #f39200;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0, 51, 102, 0.3);
-}
-
-.end-dot {
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border: 4px solid #f39200;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0, 51, 102, 0.3);
-  margin-bottom: 10px;
-}
-
-.end-label {
-  background: #003366;
-  color: white;
-  padding: 5px 15px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
-
-/* A Linha Vertical Central */
-.timeline-wrapper {
-  position: relative;
-  padding: 20px 0;
-}
-
-.timeline-wrapper::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  width: 4px;
-  height: 100%;
-  background: #0077ba;
-  transform: translateX(-50%);
-  border-radius: 2px;
-  top: 40px; /* Começa um pouco abaixo do topo para alinhar com a bolinha */
-}
-
-/* Seção de cada Ano */
-.ano-section {
-  position: relative;
+/* Faixa que contém linha + badge do ano */
+.ano-header {
+  display: flex;
+  align-items: center;
   width: 100%;
-  margin-bottom: 80px;
+  height: 36px;
+  margin-bottom: 16px;
 }
 
-/* O Marcador (Bolinha) na linha central */
+.ano-linha {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  /* border-radius: 2px; */
+}
+
 .ano-badge {
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
   background-color: #003366;
   color: white;
-  padding: 10px 25px;
+  padding: 7px 18px;
   border-radius: 30px;
-  font-weight: bold;
-  z-index: 10;
-  display: inline-block;
-  box-shadow: 0 0 0 5px #f0f2f5; /* Cria um respiro em volta da bolinha */
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.4);
+  white-space: nowrap;
 }
 
-/* Grid de Contextos */
+/* ─── Grid de cards (coluna única por ano) ───────────────────────────── */
 .grid-container {
-  display: grid;
-  padding: 0 20px;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-top: 30px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 0 10px;
 }
 
-/* Estilo dos Cards */
+/* ─── Cards com efeito vidro ────────────────────────────────────────── */
 .card {
-  background: white;
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 12px 14px;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border-top: 6px solid #ccc;
-  transition: transform 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top-width: 4px;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .card h3 {
-  margin: 0 0 10px 0;
-  font-size: 0.8rem;
+  margin: 0 0 8px 0;
+  font-size: 0.7rem;
   font-weight: 800;
-  color: #555;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .card ul {
-  list-style: none; /* Remove os marcadores padrão da lista */
-  padding-left: 0; /* Remove o padding padrão da lista */
-  font-size: 0.9rem;
-  color: #555;
+  list-style: none;
+  padding-left: 0;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.88);
   margin: 0;
 }
 
 .card li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
   text-align: justify;
-  position: relative; /* Necessário para posicionar o pseudo-elemento */
-  padding-left: 20px; /* Cria espaço para o marcador personalizado */
+  position: relative;
+  padding-left: 18px;
+  line-height: 1.5;
 }
 
 .card li::before {
-  content: "\23FA"; /* Caractere Unicode para um ponto de lista (bullet) */
-  color: #f39200; /* Cor do marcador personalizado */
+  content: "\23FA";
+  color: #f39200;
   position: absolute;
-  left: 0; /* Posiciona o marcador no início do padding */
-  top: 0; /* Alinha verticalmente com o texto */
-  font-weight: bold; /* Deixa o marcador mais visível */
-  font-size: 1em; /* Ajusta o tamanho do marcador */
+  left: 0;
+  top: 0;
+  font-weight: bold;
+  font-size: 0.85em;
 }
 
-/* Cores por Contexto */
+/* ─── Cores de borda por contexto ───────────────────────────────────── */
 .card-inpe {
-  border-top-color: #0077ba;
-}
-.card-brasil {
-  border-top-color: #28a745;
-}
-.card-mundo {
-  border-top-color: #6f42c1;
+  border-top-color: #40c4ff;
 }
 
+.card-brasil {
+  border-top-color: #69f0ae;
+}
+
+.card-mundo {
+  border-top-color: #b388ff;
+}
+
+/* ─── Imagens nos cards ─────────────────────────────────────────────── */
 .card-figura {
   margin: 10px 0 0;
   padding-top: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .card-imagem {
@@ -201,16 +312,16 @@
   border-radius: 6px;
   display: block;
   margin: 0 auto;
-  transition: transform 0.3s ease-in-out; /* Adiciona transição para o zoom */
+  transition: transform 0.3s ease;
 }
 
 .card-imagem:hover {
-  transform: scale(1.05); /* Efeito de zoom ao passar o mouse */
+  transform: scale(1.04);
 }
 
 .card-legenda {
-  font-size: 0.75rem;
-  color: #888;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
   margin-top: 5px;
   font-style: italic;
   line-height: 1.4;
@@ -220,49 +331,125 @@
 .card-imagem-fonte {
   display: block;
   margin-top: 4px;
-  font-size: 0.7rem;
-  color: #888;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
   text-align: center;
 }
 
 .card-imagem-fonte:hover {
   text-decoration: underline;
-  color: #003366;
+  color: rgba(255, 255, 255, 0.75);
 }
 
-.timeline-end {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  margin-bottom: 40px;
-  z-index: 2;
+/* ─── Estado de carregamento ────────────────────────────────────────── */
+.loading-msg {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 24px;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  flex-shrink: 0;
 }
 
-/* Responsividade: No celular a linha vai para a esquerda */
+/* ─── Sentinela (invisível, para IntersectionObserver) ──────────────── */
+.sentinela {
+  width: 0px;
+  height: 1px;
+  flex-shrink: 0;
+}
+
+/* ─── Dica de scroll ────────────────────────────────────────────────── */
+.scroll-hint {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  margin-top: 12px;
+  padding: 0 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RESPONSIVIDADE — Mobile: volta para vertical
+   ═══════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+  .container {
+    padding: 32px 0 48px;
+  }
+
   .header p {
     font-size: 0.875rem;
   }
-  .timeline-wrapper::before {
-    left: 20px;
+
+  /* No mobile, a área de scroll passa a ser vertical */
+  .timeline-scroll {
+    flex-direction: column;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding: 0 16px 24px;
+    scroll-snap-type: none;
+    position: relative;
   }
-  .ano-badge {
-    left: 20px;
-    transform: none;
+
+  /* Linha vertical restaurada no mobile */
+  .timeline-scroll::before {
+    content: "";
+    position: absolute;
+    left: 28px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
   }
-  .grid-container {
-    grid-template-columns: 1fr;
-    padding: 0;
-    margin-left: 45px;
+
+  /* Conectores horizontais ficam ocultos no mobile */
+  .timeline-connector {
+    display: none;
   }
-  .timeline-start {
-    align-items: flex-start;
-    padding-left: 11px; /* (20px da linha) - (20px largura da bolinha / 2) + (4px borda / 2) ≈ 11px */
-  }
+
+  .timeline-start,
   .timeline-end {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px;
+    margin-top: 0;
+    margin-bottom: 24px;
+  }
+
+  .timeline-start {
+    flex-direction: row-reverse;
+  }
+
+  .ano-section {
+    width: calc(100% - 56px); /* Full width minus horizontal padding */
     align-items: flex-start;
-    padding-left: 11px;
+    margin-bottom: 40px;
+    scroll-snap-align: none;
+  }
+
+  .ano-header {
+    justify-content: flex-start;
+    width: auto;
+    padding-left: 8px;
+  }
+
+  /* Esconde as linhas laterais no mobile */
+  .ano-linha {
+    display: none;
+  }
+
+  .ano-badge {
+    margin-left: 8px;
+  }
+
+  .grid-container {
+    padding: 0;
+    margin-left: 48px;
+  }
+
+  .scroll-hint {
+    display: none;
   }
 }
