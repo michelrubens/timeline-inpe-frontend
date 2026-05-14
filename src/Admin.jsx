@@ -4,7 +4,7 @@ const CONTEXTOS = ["mundo", "brasil", "inpe"];
 
 function Admin() {
   const [ano, setAno] = useState("");
-  const [contexto, setContexto] = useState("inpe");
+  const [contexto, setContexto] = useState(CONTEXTOS[0]);
   const [topicos, setTopicos] = useState("");
   const [imagens, setImagens] = useState([]);
   const [legendas, setLegendas] = useState([]);
@@ -105,7 +105,7 @@ function Admin() {
           placeholder="ex: 1969"
         />
 
-        <label>Contexto</label>
+        <label className="admin-label">Contexto</label>
         <select
           value={contexto}
           onChange={(e) => setContexto(e.target.value)}
@@ -118,7 +118,7 @@ function Admin() {
           ))}
         </select>
 
-        <label>Tópicos (um por linha)</label>
+        <label className="admin-label">Tópicos (um por linha)</label>
         <textarea
           value={topicos}
           onChange={(e) => setTopicos(e.target.value)}
@@ -184,10 +184,7 @@ function Admin() {
 
         {status && (
           <p
-            style={{
-              marginTop: 16,
-              color: status.tipo === "ok" ? "green" : "red",
-            }}
+            className={`admin-status ${status.tipo === "ok" ? "admin-status-success" : "admin-status-error"}`}
           >
             {status.msg}
           </p>

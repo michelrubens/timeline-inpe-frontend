@@ -12,6 +12,7 @@
   padding: 50px 0 60px;
   font-family: "rawline", "Segoe UI", sans-serif;
   min-height: 100vh;
+  overflow-x: hidden;
 
   /* Fundo que evidencia o efeito vidro */
   background-color: #001f4d;
@@ -137,6 +138,8 @@
   padding: 0 16px;
   /* Alinha verticalmente com o centro do badge de ano */
   margin-top: 4px;
+  scroll-snap-align: start;
+  min-width: fit-content;
 }
 
 .timeline-start {
@@ -145,6 +148,7 @@
 
 .timeline-end {
   padding-left: 0;
+  scroll-snap-align: end;
 }
 
 .start-label,

@@ -10,8 +10,29 @@ function App() {
   const [temMais, setTemMais] = useState(true);
   const [carregando, setCarregando] = useState(false);
   const sentinelaRef = useRef(null);
+  const scrollContainerRef = useRef(null);
   const paginaRef = useRef(0);
   const carregandoRef = useRef(false);
+
+  // Efeito para transformar scroll vertical do mouse em horizontal
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      // Detecta se o mouse está sobre uma seção de ano (conteúdo vertical)
+      const isOverSection = e.target.closest(".ano-section");
+
+      // Só transforma o scroll vertical em horizontal se NÃO estiver sobre uma seção de conteúdo
+      if (!isOverSection && e.deltaY !== 0) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaY;
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, []);
 
   const carregarPagina = useCallback(async () => {
     if (carregandoRef.current || !temMais) return;
@@ -21,7 +42,7 @@ function App() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/timeline?pagina=${paginaRef.current + 1}&limite=${LIMITE}`
+        `http://localhost:5000/api/timeline?pagina=${paginaRef.current + 1}&limite=${LIMITE}`,
       );
       const json = await res.json();
 
@@ -56,7 +77,7 @@ function App() {
         // Passamos o scroll container como root para funcionar no horizontal.
         root: el.closest(".timeline-scroll") || null,
         rootMargin: "0px 300px 0px 0px", // dispara 300px antes do fim horizontal
-      }
+      },
     );
 
     observer.observe(el);
@@ -81,8 +102,7 @@ function App() {
 
       <div className="timeline-wrapper">
         {/* Área de scroll horizontal (desktop) / vertical (mobile) */}
-        <div className="timeline-scroll">
-
+        <div className="timeline-scroll" ref={scrollContainerRef}>
           {/* Marcador de início */}
           <div className="timeline-start">
             <div className="start-label">O INÍCIO</div>
@@ -109,7 +129,9 @@ function App() {
                     <ul>
                       {(item.contextos.mundo?.topicos || []).map((t, i) => (
                         <li key={i}>
-                          {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
+                          {typeof t === "string"
+                            ? t
+                            : t.texto || JSON.stringify(t)}
                         </li>
                       ))}
                     </ul>
@@ -120,7 +142,9 @@ function App() {
                           alt={img.legenda}
                           className="card-imagem"
                         />
-                        <figcaption className="card-legenda">{img.legenda}</figcaption>
+                        <figcaption className="card-legenda">
+                          {img.legenda}
+                        </figcaption>
                         {img.fonte?.link && (
                           <a
                             href={img.fonte.link}
@@ -141,7 +165,9 @@ function App() {
                     <ul>
                       {(item.contextos.brasil?.topicos || []).map((t, i) => (
                         <li key={i}>
-                          {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
+                          {typeof t === "string"
+                            ? t
+                            : t.texto || JSON.stringify(t)}
                         </li>
                       ))}
                     </ul>
@@ -152,7 +178,9 @@ function App() {
                           alt={img.legenda}
                           className="card-imagem"
                         />
-                        <figcaption className="card-legenda">{img.legenda}</figcaption>
+                        <figcaption className="card-legenda">
+                          {img.legenda}
+                        </figcaption>
                         {img.fonte?.link && (
                           <a
                             href={img.fonte.link}
@@ -173,7 +201,9 @@ function App() {
                     <ul>
                       {(item.contextos.inpe?.topicos || []).map((t, i) => (
                         <li key={i}>
-                          {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
+                          {typeof t === "string"
+                            ? t
+                            : t.texto || JSON.stringify(t)}
                         </li>
                       ))}
                     </ul>
@@ -184,7 +214,9 @@ function App() {
                           alt={img.legenda}
                           className="card-imagem"
                         />
-                        <figcaption className="card-legenda">{img.legenda}</figcaption>
+                        <figcaption className="card-legenda">
+                          {img.legenda}
+                        </figcaption>
                         {img.fonte?.link && (
                           <a
                             href={img.fonte.link}
@@ -204,9 +236,7 @@ function App() {
           ))}
 
           {/* Loading inline (aparece na linha do scroll) */}
-          {carregando && (
-            <p className="loading-msg">Carregando...</p>
-          )}
+          {carregando && <p className="loading-msg">Carregando...</p>}
 
           {/* Sentinela — dispara o próximo carregamento */}
           <div ref={sentinelaRef} className="sentinela" />
@@ -224,7 +254,9 @@ function App() {
         </div>
 
         {/* Dica de navegação horizontal (só desktop) */}
-        <p className="scroll-hint">← arraste ou use o scroll para navegar pelos anos →</p>
+        <p className="scroll-hint">
+          ← arraste ou use o scroll para navegar pelos anos →
+        </p>
       </div>
     </div>
   );
