@@ -1,0 +1,146 @@
+/* General page styling */
+.admin-page-container {
+  background-color: #f0f2f5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: "rawline", "Segoe UI", sans-serif;
+}
+
+/* Card styling for the form */
+.admin-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-title {
+  color: #003366;
+  margin-top: 0;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.admin-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.admin-input,
+.admin-textarea,
+.admin-select {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  font-family: "rawline", "Segoe UI", sans-serif; /* Ensure font consistency */
+}
+
+.admin-textarea {
+  resize: vertical;
+  min-height: 120px; /* Aumentada a altura mínima */
+}
+
+.admin-file-input {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px 0; /* Adjust padding for file input */
+  box-sizing: border-box;
+}
+
+.hidden-file-input {
+  display: none; /* Esconde o input original para usarmos o label como botão */
+}
+
+.admin-image-preview {
+  background: #f8f9fa; /* Lighter background for preview */
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.admin-image-name {
+  margin: 0 0 10px;
+  font-weight: 600;
+  color: #555;
+  word-break: break-all; /* Handle long file names */
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.admin-button {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  flex: 1; /* Faz com que ambos ocupem o mesmo espaço na row */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.admin-button:hover:not(:disabled) {
+  background-color: #002244;
+}
+
+.admin-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.admin-status {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.admin-status-success {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.admin-status-error {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+  .admin-card {
+    padding: 20px;
+  }
+  .admin-title {
+    font-size: 1.5rem;
+  }
+  .admin-button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+}

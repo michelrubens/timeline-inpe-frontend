@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-
-const CONTEXTOS = ["inpe", "brasil", "mundo"];
+import "./Admin.css"; // Importa o novo arquivo CSS
+const CONTEXTOS = ["mundo", "brasil", "inpe"];
 
 function Admin() {
   const [ano, setAno] = useState("");
@@ -75,8 +75,12 @@ function Admin() {
         setStatus({ tipo: "ok", msg: json.mensagem });
         setAno("");
         setTopicos("");
+        // Limpa os estados relacionados às imagens
+        // Isso também resetará o input de arquivo
         setImagens([]);
         setLegendas([]);
+        setFontesTexto([]);
+        setFontesLink([]);
       } else {
         setStatus({ tipo: "erro", msg: json.mensagem });
       }
@@ -88,119 +92,113 @@ function Admin() {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 600,
-        margin: "40px auto",
-        fontFamily: "Segoe UI, sans-serif",
-        padding: "0 20px",
-      }}
-    >
-      <h1 style={{ color: "#003366" }}>Inserir Ano</h1>
+    <div className="admin-page-container">
+      <div className="admin-card">
+        <h1 className="admin-title">Inserir Ano</h1>
 
-      <label>Ano</label>
-      <input
-        type="number"
-        value={ano}
-        onChange={(e) => setAno(e.target.value)}
-        style={inputStyle}
-        placeholder="ex: 1969"
-      />
+        <label className="admin-label">Ano</label>
+        <input
+          type="number"
+          value={ano}
+          onChange={(e) => setAno(e.target.value)}
+          className="admin-input"
+          placeholder="ex: 1969"
+        />
 
-      <label>Contexto</label>
-      <select
-        value={contexto}
-        onChange={(e) => setContexto(e.target.value)}
-        style={inputStyle}
-      >
-        {CONTEXTOS.map((c) => (
-          <option key={c} value={c}>
-            {c.toUpperCase()}
-          </option>
+        <label>Contexto</label>
+        <select
+          value={contexto}
+          onChange={(e) => setContexto(e.target.value)}
+          className="admin-input admin-select"
+        >
+          {CONTEXTOS.map((c) => (
+            <option key={c} value={c}>
+              {c.toUpperCase()}
+            </option>
+          ))}
+        </select>
+
+        <label>Tópicos (um por linha)</label>
+        <textarea
+          value={topicos}
+          onChange={(e) => setTopicos(e.target.value)}
+          rows={5}
+          className="admin-textarea"
+          placeholder={"Primeiro tópico\nSegundo tópico"}
+        />
+
+        {imagens.map((img, i) => (
+          <div
+            key={i}
+            style={{
+              background: "#f0f2f5",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 12,
+            }}
+          >
+            <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{img.name}</p>
+            <input
+              placeholder="Legenda"
+              value={legendas[i]}
+              onChange={(e) => atualizarLegenda(i, e.target.value)}
+              className="admin-input"
+            />
+            <input
+              placeholder="Fonte (texto)"
+              value={fontesTexto[i]}
+              onChange={(e) => atualizarFonteTexto(i, e.target.value)}
+              className="admin-input"
+            />
+            <input
+              placeholder="Fonte (link)"
+              value={fontesLink[i]}
+              onChange={(e) => atualizarFonteLink(i, e.target.value)}
+              className="admin-input"
+            />
+          </div>
         ))}
-      </select>
 
-      <label>Tópicos (um por linha)</label>
-      <textarea
-        value={topicos}
-        onChange={(e) => setTopicos(e.target.value)}
-        rows={5}
-        style={inputStyle}
-        placeholder={"Primeiro tópico\nSegundo tópico"}
-      />
+        <div className="admin-actions">
+          <label className="admin-button">
+            {imagens.length > 0
+              ? `${imagens.length} img selecionada(s)`
+              : "Selecionar Imagens"}
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImagens}
+              className="hidden-file-input"
+            />
+          </label>
 
-      <label>Imagens (opcional)</label>
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleImagens}
-        style={{ marginBottom: 16 }}
-      />
-
-      {imagens.map((img, i) => (
-        <div
-          key={i}
-          style={{
-            background: "#f0f2f5",
-            borderRadius: 8,
-            padding: 12,
-            marginBottom: 12,
-          }}
-        >
-          <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{img.name}</p>
-          <input
-            placeholder="Legenda"
-            value={legendas[i]}
-            onChange={(e) => atualizarLegenda(i, e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            placeholder="Fonte (texto)"
-            value={fontesTexto[i]}
-            onChange={(e) => atualizarFonteTexto(i, e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            placeholder="Fonte (link)"
-            value={fontesLink[i]}
-            onChange={(e) => atualizarFonteLink(i, e.target.value)}
-            style={inputStyle}
-          />
+          <button
+            onClick={handleSubmit}
+            disabled={enviando}
+            className="admin-button"
+          >
+            {enviando ? "Enviando..." : "Salvar"}
+          </button>
         </div>
-      ))}
 
-      <button
-        onClick={handleSubmit}
-        disabled={enviando}
-        style={{
-          background: "#003366",
-          color: "#fff",
-          border: "none",
-          padding: "10px 24px",
-          borderRadius: 6,
-          cursor: "pointer",
-          fontSize: "1rem",
-        }}
-      >
-        {enviando ? "Enviando..." : "Salvar"}
-      </button>
-
-      {status && (
-        <p
-          style={{
-            marginTop: 16,
-            color: status.tipo === "ok" ? "green" : "red",
-          }}
-        >
-          {status.msg}
-        </p>
-      )}
+        {status && (
+          <p
+            style={{
+              marginTop: 16,
+              color: status.tipo === "ok" ? "green" : "red",
+            }}
+          >
+            {status.msg}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
 
-const inputStyle = {
+{
+  /* const inputStyle = {
   display: "block",
   width: "100%",
   marginBottom: 12,
@@ -209,6 +207,7 @@ const inputStyle = {
   border: "1px solid #ccc",
   fontSize: "0.95rem",
   boxSizing: "border-box",
-};
+}; */
+}
 
 export default Admin;

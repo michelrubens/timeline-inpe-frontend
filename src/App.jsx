@@ -89,16 +89,16 @@ function App() {
             <div className="ano-badge">{item.ano}</div>
 
             <div className="grid-container">
-              <article className="card card-inpe">
-                <h3>INPE</h3>
+              <article className="card card-mundo">
+                <h3>Mundo</h3>
                 <ul>
-                  {(item.contextos.inpe?.topicos || []).map((t, i) => (
+                  {(item.contextos.mundo?.topicos || []).map((t, i) => (
                     <li key={i}>
                       {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
                     </li>
                   ))}
                 </ul>
-                {(item.contextos.inpe?.imagens || []).map((img, i) => (
+                {(item.contextos.mundo?.imagens || []).map((img, i) => (
                   <figure key={i} className="card-figura">
                     <img
                       src={`${import.meta.env.VITE_API_URL}${img.url}`}
@@ -113,7 +113,7 @@ function App() {
                         href={img.fonte.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="card-fonte"
+                        className="card-imagem-fonte"
                       >
                         Fonte: {img.fonte.texto || img.fonte.link}
                       </a>
@@ -155,16 +155,16 @@ function App() {
                 ))}
               </article>
 
-              <article className="card card-mundo">
-                <h3>Mundo</h3>
+              <article className="card card-inpe">
+                <h3>INPE</h3>
                 <ul>
-                  {(item.contextos.mundo?.topicos || []).map((t, i) => (
+                  {(item.contextos.inpe?.topicos || []).map((t, i) => (
                     <li key={i}>
                       {typeof t === "string" ? t : t.texto || JSON.stringify(t)}
                     </li>
                   ))}
                 </ul>
-                {(item.contextos.mundo?.imagens || []).map((img, i) => (
+                {(item.contextos.inpe?.imagens || []).map((img, i) => (
                   <figure key={i} className="card-figura">
                     <img
                       src={`${import.meta.env.VITE_API_URL}${img.url}`}
