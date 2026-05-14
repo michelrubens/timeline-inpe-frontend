@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./index.css";
 import "./App.css";
 import logoImg from "./assets/linha-do-tempo-inpe.png";
+import footerImg from "./assets/Inpe-Ministerio-Governo-1cor.svg";
 
 const LIMITE = 5;
 
@@ -20,12 +21,11 @@ function App() {
     if (!container) return;
 
     const handleWheel = (e) => {
-      // O scroll vertical deve ser preservado apenas quando o mouse está sobre os cards (grid-container)
-      // Isso permite que o cabeçalho (.ano-header) e espaços vazios acionem o scroll horizontal
-      const isOverCards = e.target.closest(".grid-container");
+      // O scroll horizontal só será ativado se o mouse estiver sobre o cabeçalho do ano ou a dica de scroll
+      const isHorizontalZone =
+        e.target.closest(".ano-header") || e.target.closest(".scroll-hint");
 
-      // Se o mouse estiver fora da área densa de conteúdo, transforma o scroll vertical em horizontal
-      if (!isOverCards && e.deltaY !== 0) {
+      if (isHorizontalZone && e.deltaY !== 0) {
         e.preventDefault();
         container.scrollLeft += e.deltaY;
       }
@@ -259,6 +259,14 @@ function App() {
           ← arraste ou use o scroll para navegar pelos anos →
         </p>
       </div>
+
+      <footer className="footer">
+        <img
+          src={footerImg}
+          alt="Logos Institucionais: INPE, MCTI e Governo Federal"
+          className="footer-logo"
+        />
+      </footer>
     </div>
   );
 }

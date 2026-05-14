@@ -186,17 +186,4 @@ function Admin() {
   );
 }
 
-{
-  /* const inputStyle = {
-  display: "block",
-  width: "100%",
-  marginBottom: 12,
-  padding: "8px 10px",
-  borderRadius: 6,
-  border: "1px solid #ccc",
-  fontSize: "0.95rem",
-  boxSizing: "border-box",
-}; */
-}
-
 export default Admin;
