@@ -128,16 +128,8 @@ function Admin() {
         />
 
         {imagens.map((img, i) => (
-          <div
-            key={i}
-            style={{
-              background: "#f0f2f5",
-              borderRadius: 8,
-              padding: 12,
-              marginBottom: 12,
-            }}
-          >
-            <p style={{ margin: "0 0 8px", fontWeight: 600 }}>{img.name}</p>
+          <div key={i} className="admin-image-preview">
+            <p className="admin-image-name">{img.name}</p>
             <input
               placeholder="Legenda"
               value={legendas[i]}

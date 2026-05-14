@@ -20,11 +20,12 @@ function App() {
     if (!container) return;
 
     const handleWheel = (e) => {
-      // Detecta se o mouse está sobre uma seção de ano (conteúdo vertical)
-      const isOverSection = e.target.closest(".ano-section");
+      // O scroll vertical deve ser preservado apenas quando o mouse está sobre os cards (grid-container)
+      // Isso permite que o cabeçalho (.ano-header) e espaços vazios acionem o scroll horizontal
+      const isOverCards = e.target.closest(".grid-container");
 
-      // Só transforma o scroll vertical em horizontal se NÃO estiver sobre uma seção de conteúdo
-      if (!isOverSection && e.deltaY !== 0) {
+      // Se o mouse estiver fora da área densa de conteúdo, transforma o scroll vertical em horizontal
+      if (!isOverCards && e.deltaY !== 0) {
         e.preventDefault();
         container.scrollLeft += e.deltaY;
       }
