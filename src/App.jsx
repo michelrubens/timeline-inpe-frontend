@@ -27,7 +27,7 @@ function App() {
 
       if (isHorizontalZone && e.deltaY !== 0) {
         e.preventDefault();
-        container.scrollLeft += e.deltaY;
+        container.scrollLeft += e.deltaY + e.deltaX;
       }
     };
 
@@ -66,24 +66,22 @@ function App() {
   // Observer — funciona tanto no scroll horizontal quanto vertical
   useEffect(() => {
     const el = sentinelaRef.current;
-    if (!el || !temMais) return;
+    const container = scrollContainerRef.current;
+    if (!el || !container || !temMais) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) carregarPagina();
       },
       {
-        // root: null observa o viewport, mas no scroll horizontal
-        // o elemento sentinela precisa estar dentro do scroll container.
-        // Passamos o scroll container como root para funcionar no horizontal.
-        root: el.closest(".timeline-scroll") || null,
-        rootMargin: "0px 300px 0px 0px", // dispara 300px antes do fim horizontal
+        root: container,
+        rootMargin: "0px 200px 0px 0px", // Reduzido para evitar cálculos desnecessários longe do fim
       },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [timeline, temMais, carregarPagina]);
+  }, [temMais, carregarPagina]);
 
   return (
     <div className="container">
@@ -127,15 +125,6 @@ function App() {
                   {/* Card Mundo */}
                   <article className="card card-mundo">
                     <h3>Mundo</h3>
-                    <ul>
-                      {(item.contextos.mundo?.topicos || []).map((t, i) => (
-                        <li key={i}>
-                          {typeof t === "string"
-                            ? t
-                            : t.texto || JSON.stringify(t)}
-                        </li>
-                      ))}
-                    </ul>
                     {(item.contextos.mundo?.imagens || []).map((img, i) => (
                       <figure key={i} className="card-figura">
                         <img
@@ -158,13 +147,8 @@ function App() {
                         )}
                       </figure>
                     ))}
-                  </article>
-
-                  {/* Card Brasil */}
-                  <article className="card card-brasil">
-                    <h3>Brasil</h3>
                     <ul>
-                      {(item.contextos.brasil?.topicos || []).map((t, i) => (
+                      {(item.contextos.mundo?.topicos || []).map((t, i) => (
                         <li key={i}>
                           {typeof t === "string"
                             ? t
@@ -172,6 +156,11 @@ function App() {
                         </li>
                       ))}
                     </ul>
+                  </article>
+
+                  {/* Card Brasil */}
+                  <article className="card card-brasil">
+                    <h3>Brasil</h3>
                     {(item.contextos.brasil?.imagens || []).map((img, i) => (
                       <figure key={i} className="card-figura">
                         <img
@@ -194,13 +183,8 @@ function App() {
                         )}
                       </figure>
                     ))}
-                  </article>
-
-                  {/* Card INPE */}
-                  <article className="card card-inpe">
-                    <h3>INPE</h3>
                     <ul>
-                      {(item.contextos.inpe?.topicos || []).map((t, i) => (
+                      {(item.contextos.brasil?.topicos || []).map((t, i) => (
                         <li key={i}>
                           {typeof t === "string"
                             ? t
@@ -208,6 +192,11 @@ function App() {
                         </li>
                       ))}
                     </ul>
+                  </article>
+
+                  {/* Card INPE */}
+                  <article className="card card-inpe">
+                    <h3>INPE</h3>
                     {(item.contextos.inpe?.imagens || []).map((img, i) => (
                       <figure key={i} className="card-figura">
                         <img
@@ -230,6 +219,15 @@ function App() {
                         )}
                       </figure>
                     ))}
+                    <ul>
+                      {(item.contextos.inpe?.topicos || []).map((t, i) => (
+                        <li key={i}>
+                          {typeof t === "string"
+                            ? t
+                            : t.texto || JSON.stringify(t)}
+                        </li>
+                      ))}
+                    </ul>
                   </article>
                 </div>
               </section>

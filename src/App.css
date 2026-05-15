@@ -107,10 +107,11 @@
   overflow-y: visible;
   padding: 0 0 24px;
   gap: 0;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: none; /* Desativado para evitar conflito com o JS */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  overscroll-behavior-x: contain; /* Impede o efeito 'elástico' de travar o scroll */
 }
 
 .timeline-scroll::-webkit-scrollbar {
@@ -194,7 +195,7 @@
   align-items: center;
   flex-shrink: 0;
   width: 360px;
-  scroll-snap-align: start;
+  scroll-snap-align: none;
 }
 
 /* Faixa que contém linha + badge do ano */
@@ -274,7 +275,7 @@
 }
 
 .card li {
-  margin-bottom: 0.45rem;
+  margin-top: 0.45rem;
   text-align: justify;
   position: relative;
   padding-left: 18px;
@@ -307,8 +308,8 @@
 /* ─── Imagens nos cards ─────────────────────────────────────────────── */
 .card-figura {
   margin: 10px 0 0;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .card-imagem {
@@ -325,7 +326,7 @@
 }
 
 .card-legenda {
-  font-size: 0.72rem;
+  font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.5);
   margin-top: 5px;
   font-style: italic;
